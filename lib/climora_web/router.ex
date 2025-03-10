@@ -20,7 +20,10 @@ defmodule ClimoraWeb.Router do
   scope "/", ClimoraWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live_session :default,
+      on_mount: [{ClimoraWeb.UserAuth, :ensure_authenticated}] do
+      live "/", HomeLive, :index
+    end
   end
 
   # Other scopes may use custom stacks.
