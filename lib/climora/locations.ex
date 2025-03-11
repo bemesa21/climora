@@ -87,6 +87,27 @@ defmodule Climora.Locations do
   end
 
   @doc """
+  Deletes the UserFavoriteLocation for a given `user_id`, `lat` and `lon`.
+
+  ## Examples
+
+      iex> delete_user_favorite_location(1, 19.432608, -99.133209)
+      {:ok, %UserFavoriteLocation{}}
+
+      iex> delete_user_favorite_location(1, 999.999, 999.999)
+      {:error, "UserFavoriteLocation not found"}
+  """
+  def delete_user_favorite_location(user_id, lat, lon) do
+    with %Location{} = location <- get_location_by_coordinates(%{"lat" => lat, "lon" => lon}),
+         {:ok, user_fav_location} <- find_user_favorite_location(user_id, location.id) do
+      Repo.delete(user_fav_location)
+      {:ok, user_fav_location}
+    else
+      {:error, _reason} = error -> error
+    end
+  end
+
+  @doc """
   Inserts a `Location{}` if it doesn't exist based on the provided `lat` and `lon`. Afterward, a `UserFavoriteLocation{}` is created, associating the given `user` with the found or newly inserted location.
   If the location already exists, the function only creates the relationship between the existing location and the user by creating or checking for an existing `UserFavoriteLocation{}`.
 
@@ -135,5 +156,12 @@ defmodule Climora.Locations do
   defp insert_user_favorite_location(location, user) do
     Ecto.build_assoc(location, :user_favorites, user: user)
     |> Repo.insert()
+  end
+
+  defp find_user_favorite_location(user_id, location_id) do
+    case Repo.get_by(UserFavoriteLocation, user_id: user_id, location_id: location_id) do
+      nil -> {:error, "UserFavoriteLocation not found"}
+      user_fav_location -> {:ok, user_fav_location}
+    end
   end
 end

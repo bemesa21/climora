@@ -53,6 +53,21 @@ defmodule ClimoraWeb.HomeLive do
     {:noreply, socket}
   end
 
+  def handle_event(
+        "unlike",
+        %{
+          "dom_id" => dom_id,
+          "lat" => lat,
+          "lon" => lon
+        },
+        socket
+      ) do
+    {:ok, _city} =
+      Locations.delete_user_favorite_location(socket.assigns.current_user.id, lat, lon)
+
+    {:noreply, stream_delete_by_dom_id(socket, :favorite_cities, dom_id)}
+  end
+
   def get_city_coordinates(city) do
     url = "#{@api_url}?q=#{URI.encode(city)}&limit=5&appid=#{@weather_api_key}"
 

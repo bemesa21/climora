@@ -21,6 +21,23 @@
       class="relative flex flex-col text-gray-700 bg-white shadow-md bg-clip-border rounded-xl"
       id={id}
     >
+      <!-- unlike Icon -->
+      <div class="absolute top-2 right-2 group">
+        <button
+          type="button"
+          class="w-10 -mt-1 flex-none"
+          phx-click={
+            hide("##{id}")
+            |> JS.push("unlike", value: %{lat: city.lat, lon: city.lon, dom_id: id})
+          }
+        >
+          <.icon name="hero-heart-solid" class="w-7 h-7  bg-red-400 border-red " />
+        </button>
+        <!-- Tooltip -->
+        <span class="absolute opacity-0 group-hover:opacity-100 bg-gray-700 text-white text-xs rounded-lg py-1 px-2 transition-opacity duration-200">
+          Unlike
+        </span>
+      </div>
       <div class="p-6">
         <div class="flex justify-center items-center">
           <svg
