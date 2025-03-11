@@ -23,6 +23,7 @@ defmodule ClimoraWeb.Router do
     live_session :default,
       on_mount: [{ClimoraWeb.UserAuth, :ensure_authenticated}] do
       live "/", HomeLive, :index
+      live "/favorite_cities", HomeLive, :edit
     end
   end
 

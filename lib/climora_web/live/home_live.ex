@@ -8,74 +8,88 @@ defmodule ClimoraWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <.header>
-      Weather
+      {@page_title}
+      <:actions>
+        <.link patch={~p"/favorite_cities"}>
+          <.button class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80 bg-gray-200 text-black">
+            Edit cities
+          </.button>
+        </.link>
+      </:actions>
     </.header>
 
-    <.simple_form for={@cities_search} phx-update="ignore" phx-submit="search_city">
-      <div>
-        <div class="flex flex-col p-2 py-6 m-h-screen">
-          <div class="bg-white items-center justify-between w-full flex rounded-full shadow-lg p-2 mb-5 sticky">
-            <.input
-              class="font-bold uppercase rounded-full w-full py-4 pl-4 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline lg:text-sm text-xs"
-              field={@cities_search[:city_name]}
-              type="text"
-            />
-            <.button class="bg-gray-600 !p-2 hover:bg-blue-400 cursor-pointer mx-2 rounded-full">
-              <svg
-                class="w-6 h-6 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </.button>
-          </div>
-        </div>
-      </div>
-    </.simple_form>
-    <div phx-update="stream" id="city_list">
-      <div
-        :for={{id, city} <- @streams.resulting_cities}
-        class="bg-white top-100 z-40 w-full "
-        id={id}
-      >
-        <div class="cursor-pointer w-full border-gray-100 rounded-t border-b">
-          <div class="flex w-full items-center p-2 pl-2 border-transparent border-l-2 relative hover:border-teal-100">
-            <div class="w-full items-center flex">
-              <div class="mx-2 -mt-1 w-full ">
-                {city.name}
-                <div class="text-xs truncate w-full normal-case font-normal -mt-1 text-gray-500">
-                  {city.metadata.state} - {city.metadata.country}
-                </div>
-              </div>
-              <button
-                id={"#{id}_solid"}
-                type="button"
-                class="w-10 flex-none hidden"
-                phx-click={JS.show(to: "##{id}_no_solid") |> JS.hide()}
-              >
-                <.icon name="hero-heart-solid" class="w-7 h-7  bg-red-400 border-red " />
-              </button>
-              <button
-                id={"#{id}_no_solid"}
-                type="button"
-                class="w-10 flex-none"
-                phx-click={
-                  JS.show(to: "##{id}_solid") |> JS.hide() |> JS.push("set_favorite", value: city)
-                }
-              >
-                <.icon name="hero-heart" class="w-7 h-7 bg-red-400 hover:bg-red-400" />
-              </button>
+    <.modal :if={@live_action == :edit} id="city_search_modal" show on_cancel={JS.patch(~p"/")}>
+      <.header>
+        Choose your favorite cities!
+      </.header>
+
+      <.simple_form for={@cities_search} phx-update="ignore" phx-submit="search_city">
+        <div>
+          <div class="flex flex-col p-2  m-h-screen">
+            <div class="bg-white items-center justify-between w-full flex rounded-full shadow-lg p-2 mb-5 sticky">
+              <.input
+                class="font-bold uppercase rounded-full w-full py-4 pl-4 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline lg:text-sm text-xs"
+                field={@cities_search[:city_name]}
+                type="text"
+              />
+              <.button class="bg-gray-600 !p-2 hover:bg-blue-400 cursor-pointer mx-2 rounded-full">
+                <svg
+                  class="w-6 h-6 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </.button>
             </div>
           </div>
         </div>
+      </.simple_form>
+      <div phx-update="stream" id="city_list" class="group">
+        <div
+          :for={{id, city} <- @streams.resulting_cities}
+          class="bg-white top-100 z-40 w-full peer"
+          id={id}
+        >
+          <div class="cursor-pointer w-full border-gray-100 rounded-t border-b">
+            <div class="flex w-full items-center p-2 pl-2 border-transparent border-l-2 relative hover:border-teal-100">
+              <div class="w-full items-center flex">
+                <div class="mx-2 -mt-1 w-full ">
+                  {city.name}
+                  <div class="text-xs truncate w-full normal-case font-normal -mt-1 text-gray-500">
+                    {city.metadata.state} - {city.metadata.country}
+                  </div>
+                </div>
+                <button
+                  id={"#{id}_solid"}
+                  type="button"
+                  class="w-10 flex-none hidden"
+                  phx-click={JS.show(to: "##{id}_no_solid") |> JS.hide()}
+                >
+                  <.icon name="hero-heart-solid" class="w-7 h-7  bg-red-400 border-red " />
+                </button>
+                <button
+                  id={"#{id}_no_solid"}
+                  type="button"
+                  class="w-10 flex-none"
+                  phx-click={
+                    JS.show(to: "##{id}_solid") |> JS.hide() |> JS.push("set_favorite", value: city)
+                  }
+                >
+                  <.icon name="hero-heart" class="w-7 h-7 bg-red-400 hover:bg-red-400" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="block group-has-[div.peer]:hidden  h-64"></div>
       </div>
-    </div>
+    </.modal>
     """
   end
 
@@ -86,6 +100,24 @@ defmodule ClimoraWeb.HomeLive do
       |> stream(:resulting_cities, [])
 
     {:ok, socket}
+  end
+
+  def handle_params(params, _uri, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
+
+  defp apply_action(socket, :index, _params) do
+    socket
+    |> assign(
+      :page_title,
+      "Hey! #{socket.assigns.current_user.email}, here are your favorite cities!"
+    )
+    |> stream(:resulting_cities, [], reset: true)
+  end
+
+  defp apply_action(socket, :edit, _params) do
+    socket
+    |> stream(:resulting_cities, [], reset: true)
   end
 
   def handle_event("search_city", %{"cities_search" => %{"city_name" => city}}, socket) do
