@@ -1,4 +1,5 @@
 defmodule ClimoraWeb.HomeLive do
+  alias Climora.Locations
   use ClimoraWeb, :live_view
 
   @api_url "http://api.openweathermap.org/geo/1.0/direct"
@@ -49,7 +50,7 @@ defmodule ClimoraWeb.HomeLive do
               <div class="mx-2 -mt-1 w-full ">
                 {city.name}
                 <div class="text-xs truncate w-full normal-case font-normal -mt-1 text-gray-500">
-                  {city.country}
+                  {city.metadata.state} - {city.metadata.country}
                 </div>
               </div>
               <button
@@ -58,10 +59,7 @@ defmodule ClimoraWeb.HomeLive do
                 class="w-10 flex-none hidden"
                 phx-click={JS.show(to: "##{id}_no_solid") |> JS.hide()}
               >
-                <.icon
-                  name="hero-heart-solid"
-                  class="w-7 h-7  bg-red-400 border-red hover:bg-red-400"
-                />
+                <.icon name="hero-heart-solid" class="w-7 h-7  bg-red-400 border-red " />
               </button>
               <button
                 id={"#{id}_no_solid"}
@@ -96,12 +94,17 @@ defmodule ClimoraWeb.HomeLive do
   end
 
   def handle_event("set_favorite", params, socket) do
-    IO.inspect("todo, create_favorite")
+    socket =
+      case Locations.create_user_favorite_location(socket.assigns.current_user, params) do
+        {:ok, _location} -> socket
+        {:error, _error} -> put_flash(socket, :error, "something went wrong")
+      end
+
     {:noreply, socket}
   end
 
   def get_city_coordinates(city) do
-    url = "#{@api_url}?q=#{URI.encode(city)}&limit=2&appid=#{@api_key}"
+    url = "#{@api_url}?q=#{URI.encode(city)}&limit=5&appid=#{@api_key}"
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(url) do
       {:ok, get_cities_info(body)}
@@ -123,10 +126,14 @@ defmodule ClimoraWeb.HomeLive do
     |> Enum.map(fn {city, idx} ->
       %{
         id: "city_#{idx}",
-        country: city["country"],
         lat: city["lat"],
         lon: city["lon"],
-        name: city["name"]
+        name: city["name"],
+        type: "city",
+        metadata: %{
+          state: city["state"],
+          country: city["country"]
+        }
       }
     end)
   end
