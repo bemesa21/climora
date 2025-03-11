@@ -11,9 +11,9 @@ defmodule ClimoraWeb.HomeLive do
       {@page_title}
       <:actions>
         <.link patch={~p"/favorite_cities"}>
-          <.button class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80 bg-gray-200 text-black">
+          <button class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80 bg-gray-200 text-black">
             Add cities
-          </.button>
+          </button>
         </.link>
       </:actions>
     </.header>
@@ -53,7 +53,7 @@ defmodule ClimoraWeb.HomeLive do
           </div>
           <div class="p-6 pt-0">
             <.link patch={~p"/city/#{city.lat}/#{city.lon}"}>
-              <.button class="flex items-center gap-2 px-4 py-2 font-sans text-xs font-bold text-center text-gray-900 uppercase align-middle transition-all rounded-lg select-none disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:bg-gray-900/10 active:bg-gray-900/20 bg-transparent">
+              <button class="flex items-center gap-2 px-4 py-2 font-sans text-xs font-bold text-center text-gray-900 uppercase align-middle transition-all rounded-lg select-none disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:bg-gray-900/10 active:bg-gray-900/20 bg-transparent">
                 Learn More
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +70,7 @@ defmodule ClimoraWeb.HomeLive do
                   >
                   </path>
                 </svg>
-              </.button>
+              </button>
             </.link>
           </div>
         </div>
