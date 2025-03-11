@@ -9,48 +9,41 @@ defmodule ClimoraWeb.CityLive do
   def render(assigns) do
     ~H"""
     <.header>
-      {@city.name} - {@city.metadata["state"]}
+      <span class="text-xl font-bold text-gray-800">{@city.name} - {@city.metadata["state"]}</span>
 
       <:actions>
         <.link navigate={~p"/"}>
-          <.button class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80 bg-gray-200 text-black">
+          <button class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80 bg-gray-200 text-black">
             Go to your favorite cities
-          </.button>
+          </button>
         </.link>
       </:actions>
     </.header>
 
-    <div :if={!is_nil(@city_temperature)} class="my-4">
-      <h3 class="font-bold">Current weather</h3>
-      <ul class="m-5">
-        <p class="block mb-2 font-sans text-l antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
-          Temperature:
-          <p class="block font-sans text-base antialiased font-light leading-relaxed text-inherit">
-            {@city_temperature["main"]["temp"]} °C
-          </p>
-        </p>
+    <div :if={!is_nil(@city_temperature)} class="my-4 p-4 bg-white rounded-lg shadow-md">
+      <h3 class="font-bold text-xl text-gray-800 mb-4">Current weather</h3>
+      
+    <!-- Temperature Section -->
+      <ul class="mb-4">
+        <li class="flex items-center">
+          <span class="font-semibold text-lg text-gray-900 mr-2">Temperature:</span>
+          <span class="text-lg font-light">{@city_temperature["main"]["temp"]} °C</span>
+        </li>
       </ul>
-      <ul>
-        <div class="flex">
-          <div class="m-5">
-            <p class="block bold mb-2 font-sans text-l antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
-              Minimum Temperature:
-              <p class="block font-sans text-base antialiased font-light leading-relaxed text-inherit">
-                {@city_temperature["main"]["temp_min"]} °C
-              </p>
-            </p>
-          </div>
-          <div class="m-5">
-            <p class="block bold mb-2 font-sans text-l antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
-              Maximum Temperature:
-              <p class="block font-sans text-base antialiased font-light leading-relaxed text-inherit">
-                {@city_temperature["main"]["temp_max"]} °C
-              </p>
-            </p>
-          </div>
+      
+    <!-- Min and Max Temperature Section -->
+      <div class="flex space-x-6">
+        <div class="w-1/2">
+          <p class="px-4 font-semibold text-lg text-gray-900 mb-2">Minimum Temperature</p>
+          <p class="px-4 text-base font-light">{@city_temperature["main"]["temp_min"]} °C</p>
         </div>
-      </ul>
+        <div class="w-1/2">
+          <p class="px-4 font-semibold text-lg text-gray-900 mb-2">Maximum Temperature</p>
+          <p class="px-4 text-base font-light">{@city_temperature["main"]["temp_max"]} °C</p>
+        </div>
+      </div>
     </div>
+
     <div :if={!is_nil(@next_hours_weather)} class="my-4 p-4 bg-white rounded-lg shadow-md">
       <h3 class="font-bold text-xl text-gray-800 mb-4">Temperature next 24 hours</h3>
 

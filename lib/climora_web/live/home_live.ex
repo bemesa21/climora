@@ -31,30 +31,63 @@ defmodule ClimoraWeb.HomeLive do
           id={id}
         >
           <div class="p-6">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="w-12 h-12 mb-4 text-gray-900"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M9.315 7.584C12.195 3.883 16.695 1.5 21.75 1.5a.75.75 0 01.75.75c0 5.056-2.383 9.555-6.084 12.436A6.75 6.75 0 019.75 22.5a.75.75 0 01-.75-.75v-4.131A15.838 15.838 0 016.382 15H2.25a.75.75 0 01-.75-.75 6.75 6.75 0 017.815-6.666zM15 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5z"
-                clip-rule="evenodd"
+            <div class="flex justify-center items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 64 64"
+                fill="currentColor"
+                class="w-12 h-12 mb-4 text-gray-900"
               >
-              </path>
-            </svg>
-            <h5 class="block mb-2 font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
-              {city.name}
-            </h5>
-            <p class="block font-sans text-base antialiased font-light leading-relaxed text-inherit">
-              {city.metadata["state"]}-{city.metadata["country"]}
-            </p>
+                <g>
+                  <!-- Skyline Buildings -->
+                  <rect x="4" y="32" width="8" height="30" fill="currentColor" />
+                  <rect x="14" y="24" width="8" height="38" fill="currentColor" />
+                  <rect x="24" y="16" width="8" height="46" fill="currentColor" />
+                  <rect x="34" y="28" width="8" height="34" fill="currentColor" />
+                  <rect x="44" y="20" width="8" height="42" fill="currentColor" />
+                  <rect x="54" y="12" width="6" height="50" fill="currentColor" />
+                  
+    <!-- Windows -->
+                  <rect x="6" y="36" width="2" height="2" fill="white" />
+                  <rect x="6" y="40" width="2" height="2" fill="white" />
+                  <rect x="6" y="44" width="2" height="2" fill="white" />
+                  <rect x="6" y="48" width="2" height="2" fill="white" />
+
+                  <rect x="16" y="28" width="2" height="2" fill="white" />
+                  <rect x="16" y="32" width="2" height="2" fill="white" />
+                  <rect x="16" y="36" width="2" height="2" fill="white" />
+
+                  <rect x="26" y="18" width="2" height="2" fill="white" />
+                  <rect x="26" y="22" width="2" height="2" fill="white" />
+                  <rect x="26" y="26" width="2" height="2" fill="white" />
+
+                  <rect x="36" y="30" width="2" height="2" fill="white" />
+                  <rect x="36" y="34" width="2" height="2" fill="white" />
+
+                  <rect x="46" y="22" width="2" height="2" fill="white" />
+                  <rect x="46" y="26" width="2" height="2" fill="white" />
+                  <rect x="46" y="30" width="2" height="2" fill="white" />
+
+                  <rect x="56" y="14" width="2" height="2" fill="white" />
+                  <rect x="56" y="18" width="2" height="2" fill="white" />
+                  <rect x="56" y="22" width="2" height="2" fill="white" />
+                </g>
+              </svg>
+            </div>
+
+            <div class=" justify-center items-center">
+              <h5 class="block mb-2 font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
+                {city.name}
+              </h5>
+              <p class="block font-sans text-base antialiased font-light leading-relaxed text-inherit">
+                {city.metadata["state"]}-{city.metadata["country"]}
+              </p>
+            </div>
           </div>
           <div class="p-6 pt-0">
             <.link patch={~p"/city/#{city.lat}/#{city.lon}"}>
               <button class="flex items-center gap-2 px-4 py-2 font-sans text-xs font-bold text-center text-gray-900 uppercase align-middle transition-all rounded-lg select-none disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:bg-gray-900/10 active:bg-gray-900/20 bg-transparent">
-                Learn More
+                Weather info
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
