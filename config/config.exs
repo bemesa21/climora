@@ -9,6 +9,8 @@ import Config
 
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
+config :climora, Climora.WeatherAPI, api_key: System.get_env("WEATHER_API_KEY")
+
 config :climora,
   ecto_repos: [Climora.Repo],
   generators: [timestamp_type: :utc_datetime]

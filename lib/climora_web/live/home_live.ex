@@ -3,7 +3,7 @@ defmodule ClimoraWeb.HomeLive do
   alias Climora.Locations
 
   @api_url "http://api.openweathermap.org/geo/1.0/direct"
-  @api_key ""
+  @weather_api_key Application.compile_env!(:climora, Climora.WeatherAPI)[:api_key]
 
   def mount(_params, _session, socket) do
     socket =
@@ -54,7 +54,7 @@ defmodule ClimoraWeb.HomeLive do
   end
 
   def get_city_coordinates(city) do
-    url = "#{@api_url}?q=#{URI.encode(city)}&limit=5&appid=#{@api_key}"
+    url = "#{@api_url}?q=#{URI.encode(city)}&limit=5&appid=#{@weather_api_key}"
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(url) do
       {:ok, get_cities_info(body)}

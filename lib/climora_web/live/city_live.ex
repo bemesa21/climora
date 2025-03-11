@@ -4,7 +4,7 @@ defmodule ClimoraWeb.CityLive do
   @current_weather_api_url "https://api.openweathermap.org/data/2.5/weather"
   @weather_data_api_url "https://api.openweathermap.org/data/3.0/onecall"
 
-  @api_key ""
+  @weather_api_key Application.compile_env!(:climora, Climora.WeatherAPI)[:api_key]
 
   def render(assigns) do
     ~H"""
@@ -90,7 +90,7 @@ defmodule ClimoraWeb.CityLive do
 
   def get_next_hours_weather(%{lat: lat, lon: lon}) do
     url =
-      "#{@weather_data_api_url}?lat=#{URI.encode(to_string(lat))}&lon=#{URI.encode(to_string(lon))}&exclude=current,minutely,daily,alerts&appid=#{@api_key}&units=metric&lang=sp"
+      "#{@weather_data_api_url}?lat=#{URI.encode(to_string(lat))}&lon=#{URI.encode(to_string(lon))}&exclude=current,minutely,daily,alerts&appid=#{@weather_api_key}&units=metric&lang=sp"
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(url) do
       response = JSON.decode!(body)
@@ -118,7 +118,7 @@ defmodule ClimoraWeb.CityLive do
 
   def get_next_days_weather(%{lat: lat, lon: lon}) do
     url =
-      "#{@weather_data_api_url}?lat=#{URI.encode(to_string(lat))}&lon=#{URI.encode(to_string(lon))}&exclude=current,minutely,hourly,alerts&appid=#{@api_key}&units=metric&lang=sp"
+      "#{@weather_data_api_url}?lat=#{URI.encode(to_string(lat))}&lon=#{URI.encode(to_string(lon))}&exclude=current,minutely,hourly,alerts&appid=#{@weather_api_key}&units=metric&lang=sp"
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(url) do
       response = JSON.decode!(body)
@@ -147,7 +147,7 @@ defmodule ClimoraWeb.CityLive do
 
   def get_current_city_weather(%{lat: lat, lon: lon}) do
     url =
-      "#{@current_weather_api_url}?lat=#{URI.encode(to_string(lat))}&lon=#{URI.encode(to_string(lon))}&appid=#{@api_key}&units=metric"
+      "#{@current_weather_api_url}?lat=#{URI.encode(to_string(lat))}&lon=#{URI.encode(to_string(lon))}&appid=#{@weather_api_key}&units=metric"
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(url) do
       JSON.decode!(body)
