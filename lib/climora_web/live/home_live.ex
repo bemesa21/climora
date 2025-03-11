@@ -1,7 +1,7 @@
 defmodule ClimoraWeb.HomeLive do
   use ClimoraWeb, :live_view
   alias Climora.Locations
-  alias Climora.OpenWeatherClient
+  @client Application.compile_env(:climora, Climora.OpenWeatherClient)
 
   def mount(_params, _session, socket) do
     socket =
@@ -65,11 +65,11 @@ defmodule ClimoraWeb.HomeLive do
   end
 
   def set_city_coordinates(socket, city) do
-    case OpenWeatherClient.get_city_coordinates(city) do
+    case @client.get_city_coordinates(city) do
       {:ok, response} ->
         stream(socket, :resulting_cities, format_city_info(response), reset: true)
 
-      {:error, _reason} ->
+      {:error, []} ->
         socket
         |> assign(error: "Failed to fetch city data")
         |> stream(:resulting_cities, [], reset: true)

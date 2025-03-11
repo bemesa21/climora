@@ -1,7 +1,7 @@
 <.header>
   {@page_title}
   <:actions>
-    <.link patch={~p"/favorite_cities"}>
+    <.link id="add_new_city" patch={~p"/favorite_cities"}>
       <button class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80 bg-gray-200 text-black">
         Add cities
       </button>
@@ -15,7 +15,10 @@
     phx-update="stream"
     id="favorite_cities_grid"
   >
-    <div class="only:block hidden col-span-3 text-center p-4 m-4 text-gray-500">
+    <div
+      id="empty_cities_list"
+      class="only:block hidden col-span-3 text-center p-4 m-4 text-gray-500"
+    >
       <p>You don't have any favorite cities yet.</p>
     </div>
     <!-- Card -->
@@ -91,7 +94,7 @@
             {city.name}
           </h5>
           <p class="block font-sans text-base antialiased font-light leading-relaxed text-inherit">
-            {city.metadata["state"]}-{city.metadata["country"]}
+            {city.metadata["state"]} - {city.metadata["country"]}
           </p>
         </div>
       </div>
@@ -127,7 +130,7 @@
     Choose your favorite cities!
   </.header>
 
-  <.simple_form for={@cities_search} phx-update="ignore" phx-submit="search_city">
+  <.simple_form for={@cities_search} phx-submit="search_city" id="search_cities_form">
     <div>
       <div class="flex flex-col p-2  m-h-screen">
         <div class="bg-white items-center justify-between w-full flex rounded-full shadow-lg p-2 mb-5 sticky">
@@ -135,6 +138,7 @@
             class="font-bold uppercase rounded-full w-full py-4 pl-4 text-gray-700 bg-gray-100 leading-tight focus:outline-none focus:shadow-outline lg:text-sm text-xs"
             field={@cities_search[:city_name]}
             type="text"
+            id="city_name_input"
           />
           <.button class="bg-gray-600 !p-2 hover:bg-blue-400 cursor-pointer mx-2 rounded-full">
             <svg
@@ -191,7 +195,6 @@
         </div>
       </div>
     </div>
-    <div :if={@live_action == :edit} class="block group-has-[div.peer]:hidden  h-64"></div>
   </div>
 </.modal>
 <!--Cities selector -->
