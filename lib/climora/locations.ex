@@ -5,6 +5,7 @@ defmodule Climora.Locations do
 
   import Ecto.Query, warn: false
 
+  alias Climora.Accounts.User
   alias Climora.Locations.Location
   alias Climora.Locations.UserFavoriteLocation
   alias Climora.Repo
@@ -52,6 +53,19 @@ defmodule Climora.Locations do
   """
   def get_favorite_location(location_id, user_id) do
     Repo.get_by(UserFavoriteLocation, location_id: location_id, user_id: user_id)
+  end
+
+  def list_user_favorite_cities(user_id) do
+    query =
+      from u in User,
+        join: ufl in UserFavoriteLocation,
+        on: ufl.user_id == u.id,
+        join: l in Location,
+        on: l.id == ufl.location_id,
+        where: u.id == ^user_id and l.type == :city,
+        select: l
+
+    Repo.all(query)
   end
 
   @doc """
