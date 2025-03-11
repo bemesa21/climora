@@ -1,10 +1,7 @@
 defmodule ClimoraWeb.CityLive do
   use ClimoraWeb, :live_view
 
-  @current_weather_api_url "https://api.openweathermap.org/data/2.5/weather"
-  @weather_data_api_url "https://api.openweathermap.org/data/3.0/onecall"
-
-  @weather_api_key Application.compile_env!(:climora, Climora.WeatherAPI)[:api_key]
+  alias Climora.OpenWeatherClient
 
   def render(assigns) do
     ~H"""
@@ -20,14 +17,14 @@ defmodule ClimoraWeb.CityLive do
       </:actions>
     </.header>
 
-    <div :if={!is_nil(@city_temperature)} class="my-4 p-4 bg-white rounded-lg shadow-md">
+    <div :if={!is_nil(@current_weather)} class="my-4 p-4 bg-white rounded-lg shadow-md">
       <h3 class="font-bold text-xl text-gray-800 mb-4">Current weather</h3>
       
     <!-- Temperature Section -->
       <ul class="mb-4">
         <li class="flex items-center">
           <span class="font-semibold text-lg text-gray-900 mr-2">Temperature:</span>
-          <span class="text-lg font-light">{@city_temperature["main"]["temp"]} °C</span>
+          <span class="text-lg font-light">{@current_weather["main"]["temp"]} °C</span>
         </li>
       </ul>
       
@@ -35,11 +32,11 @@ defmodule ClimoraWeb.CityLive do
       <div class="flex space-x-6">
         <div class="w-1/2">
           <p class="px-4 font-semibold text-lg text-gray-900 mb-2">Minimum Temperature</p>
-          <p class="px-4 text-base font-light">{@city_temperature["main"]["temp_min"]} °C</p>
+          <p class="px-4 text-base font-light">{@current_weather["main"]["temp_min"]} °C</p>
         </div>
         <div class="w-1/2">
           <p class="px-4 font-semibold text-lg text-gray-900 mb-2">Maximum Temperature</p>
-          <p class="px-4 text-base font-light">{@city_temperature["main"]["temp_max"]} °C</p>
+          <p class="px-4 text-base font-light">{@current_weather["main"]["temp_max"]} °C</p>
         </div>
       </div>
     </div>
@@ -72,93 +69,73 @@ defmodule ClimoraWeb.CityLive do
 
   def mount(params, _session, socket) do
     city = Climora.Locations.get_location_by_coordinates(params)
-    data = get_current_city_weather(city)
 
-    next_hours_weather =
-      get_next_hours_weather(city)
+    socket =
+      set_current_city_weather(socket, city)
+      |> set_next_days_weather(city)
+      |> set_next_hours_weather(city)
+      |> assign(:city, city)
 
-    next_days_weather = get_next_days_weather(city)
-
-    {:ok,
-     assign(socket,
-       city: city,
-       city_temperature: data,
-       next_hours_weather: next_hours_weather,
-       next_days_weather: next_days_weather
-     )}
+    {:ok, socket}
   end
 
-  def get_next_hours_weather(%{lat: lat, lon: lon}) do
-    url =
-      "#{@weather_data_api_url}?lat=#{URI.encode(to_string(lat))}&lon=#{URI.encode(to_string(lon))}&exclude=current,minutely,daily,alerts&appid=#{@weather_api_key}&units=metric&lang=sp"
+  def set_next_hours_weather(socket, params) do
+    case OpenWeatherClient.get_next_hours_weather(params) do
+      {:ok, data} ->
+        formated_data =
+          data["hourly"]
+          |> Enum.map(fn x ->
+            {date, time} = to_local_date(x["dt"])
 
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(url) do
-      response = JSON.decode!(body)
+            %{
+              temp: x["temp"],
+              time: time,
+              date: date
+            }
+          end)
 
-      response["hourly"]
-      |> Enum.map(fn x ->
-        {date, time} = to_local_date(x["dt"])
+        assign(socket, :next_hours_weather, formated_data)
 
-        %{
-          temp: x["temp"],
-          time: time,
-          date: date
-        }
-      end)
-    else
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
-        IO.inspect("Failed to get a city #{status_code}")
-        nil
-
-      {:error, reason} ->
-        IO.inspect("Failed to get a city #{reason}")
-        nil
+      {:error, _reason} ->
+        socket
+        |> assign(error: "Failed to fetch hourly weather forecast")
+        |> assign(:next_hours_weather, nil)
     end
   end
 
-  def get_next_days_weather(%{lat: lat, lon: lon}) do
-    url =
-      "#{@weather_data_api_url}?lat=#{URI.encode(to_string(lat))}&lon=#{URI.encode(to_string(lon))}&exclude=current,minutely,hourly,alerts&appid=#{@weather_api_key}&units=metric&lang=sp"
+  def set_next_days_weather(socket, params) do
+    case OpenWeatherClient.get_next_days_weather(params) do
+      {:ok, data} ->
+        formated_data =
+          data["daily"]
+          |> Enum.map(fn x ->
+            {date, _time} = to_local_date(x["dt"])
 
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(url) do
-      response = JSON.decode!(body)
+            %{
+              min_temp: x["temp"]["min"],
+              max_temp: x["temp"]["max"],
+              date: date
+            }
+          end)
 
-      response["daily"]
-      |> IO.inspect()
-      |> Enum.map(fn x ->
-        {date, _time} = to_local_date(x["dt"])
+        assign(socket, :next_days_weather, formated_data)
 
-        %{
-          min_temp: x["temp"]["min"],
-          max_temp: x["temp"]["max"],
-          date: date
-        }
-      end)
-    else
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
-        IO.inspect("Failed to get a city #{status_code}")
-        nil
-
-      {:error, reason} ->
-        IO.inspect("Failed to get a city #{reason}")
-        nil
+      {:error, _reason} ->
+        socket
+        |> assign(error: "Failed to fetch daily weather forecast")
+        |> assign(:next_days_weather, nil)
     end
   end
 
-  def get_current_city_weather(%{lat: lat, lon: lon}) do
-    url =
-      "#{@current_weather_api_url}?lat=#{URI.encode(to_string(lat))}&lon=#{URI.encode(to_string(lon))}&appid=#{@weather_api_key}&units=metric"
+  def set_current_city_weather(socket, params) do
+    case OpenWeatherClient.get_current_city_weather(params) do
+      {:ok, data} ->
+        assign(socket, :current_weather, data)
 
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(url) do
-      JSON.decode!(body)
-    else
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
-        IO.inspect("Failed to get a city #{status_code}")
-        nil
-
-      {:error, reason} ->
-        IO.inspect("Failed to get a city #{reason}")
-        nil
+      {:error, _reason} ->
+        socket
+        |> assign(error: "Failed to fetch city data")
+        |> assign(:current_weather, nil)
     end
   end
 

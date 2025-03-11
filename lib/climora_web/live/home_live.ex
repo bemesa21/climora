@@ -1,9 +1,7 @@
 defmodule ClimoraWeb.HomeLive do
   use ClimoraWeb, :live_view
   alias Climora.Locations
-
-  @api_url "http://api.openweathermap.org/geo/1.0/direct"
-  @weather_api_key Application.compile_env!(:climora, Climora.WeatherAPI)[:api_key]
+  alias Climora.OpenWeatherClient
 
   def mount(_params, _session, socket) do
     socket =
@@ -25,7 +23,6 @@ defmodule ClimoraWeb.HomeLive do
 
   defp apply_action(socket, :index, _params) do
     socket
-    |> stream(:resulting_cities, [], reset: true)
     |> stream(
       :favorite_cities,
       Locations.list_user_favorite_cities(socket.assigns.current_user.id),
@@ -39,8 +36,7 @@ defmodule ClimoraWeb.HomeLive do
   end
 
   def handle_event("search_city", %{"cities_search" => %{"city_name" => city}}, socket) do
-    {_status, cities} = get_city_coordinates(city)
-    {:noreply, stream(socket, :resulting_cities, cities)}
+    {:noreply, set_city_coordinates(socket, city)}
   end
 
   def handle_event("set_favorite", params, socket) do
@@ -68,25 +64,20 @@ defmodule ClimoraWeb.HomeLive do
     {:noreply, stream_delete_by_dom_id(socket, :favorite_cities, dom_id)}
   end
 
-  def get_city_coordinates(city) do
-    url = "#{@api_url}?q=#{URI.encode(city)}&limit=5&appid=#{@weather_api_key}"
+  def set_city_coordinates(socket, city) do
+    case OpenWeatherClient.get_city_coordinates(city) do
+      {:ok, response} ->
+        stream(socket, :resulting_cities, format_city_info(response), reset: true)
 
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- HTTPoison.get(url) do
-      {:ok, get_cities_info(body)}
-    else
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
-        IO.inspect("Failed to get a city #{status_code}")
-        {:error, []}
-
-      {:error, reason} ->
-        IO.inspect("Failed to get a city #{reason}")
-        {:error, []}
+      {:error, _reason} ->
+        socket
+        |> assign(error: "Failed to fetch city data")
+        |> stream(:resulting_cities, [], reset: true)
     end
   end
 
-  defp get_cities_info(body) do
-    body
-    |> Jason.decode!()
+  defp format_city_info(cities_data) do
+    cities_data
     |> Enum.with_index()
     |> Enum.map(fn {city, idx} ->
       %{

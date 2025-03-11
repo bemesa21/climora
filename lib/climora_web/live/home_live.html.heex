@@ -9,12 +9,15 @@
   </:actions>
 </.header>
 
-<div class="flex justify-center items-center min-h-screen">
+<div class="flex justify-center items-center">
   <div
-    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-[1200px] mx-auto"
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-[1200px] mx-auto my-4"
     phx-update="stream"
     id="favorite_cities_grid"
   >
+    <div class="only:block hidden col-span-3 text-center p-4 m-4 text-gray-500">
+      <p>You don't have any favorite cities yet.</p>
+    </div>
     <!-- Card -->
     <div
       :for={{id, city} <- @streams.favorite_cities}
