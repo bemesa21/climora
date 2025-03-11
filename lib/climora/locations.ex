@@ -55,6 +55,24 @@ defmodule Climora.Locations do
     Repo.get_by(UserFavoriteLocation, location_id: location_id, user_id: user_id)
   end
 
+  @doc """
+  Lists all the favorite cities of a specific user by joining the `User`, `UserFavoriteLocation`, and `Location` tables.
+  The query filters for locations where the `type` is `:city`, meaning it only retrieves cities as favorite locations.
+
+  ### Example:
+
+      iex> list_user_favorite_cities(123)
+      [
+        %Location{id: 1, name: "New York", type: :city, lat: 40.7128, lon: -74.0060},
+        %Location{id: 2, name: "Los Angeles", type: :city, lat: 34.0522, lon: -118.2437}
+      ]
+
+      iex> list_user_favorite_cities(999)
+      []
+
+
+  """
+
   def list_user_favorite_cities(user_id) do
     query =
       from u in User,
@@ -69,16 +87,20 @@ defmodule Climora.Locations do
   end
 
   @doc """
-  Inserts a Location{} if the lat and lon doesn't exist, and then create a UserFavoriteLocation{}.
-  If the location exists, it just build the UserFavoriteLocation{} relation
+  Inserts a `Location{}` if it doesn't exist based on the provided `lat` and `lon`. Afterward, a `UserFavoriteLocation{}` is created, associating the given `user` with the found or newly inserted location.
+  If the location already exists, the function only creates the relationship between the existing location and the user by creating or checking for an existing `UserFavoriteLocation{}`.
 
-  ## Examples
 
-      iex> create_user_favorite_location(user_id,  %{lat: ...})
-      {:ok, %UserFavoriteLocation{}}
+  ### Examples:
 
-      iex> create_user_favorite_location(user_id,  %{lat: ...})
-      {:error, %Ecto.Changeset{}}
+    iex> create_user_favorite_location(user_id, %{lat: 40.7128, lon: -74.0060})
+    {:ok, %UserFavoriteLocation{}}
+
+    iex> create_user_favorite_location(user_id, %{lat: 34.0522, lon: -118.2437})
+    {:ok, %UserFavoriteLocation{}}
+
+    iex> create_user_favorite_location(user_id, %{lat: 40.7128, lon: -74.0060})
+    {:error, %Ecto.Changeset{}}
 
   """
   def create_user_favorite_location(user, attrs) do
