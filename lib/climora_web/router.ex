@@ -24,6 +24,7 @@ defmodule ClimoraWeb.Router do
       on_mount: [{ClimoraWeb.UserAuth, :ensure_authenticated}] do
       live "/", HomeLive, :index
       live "/favorite_cities", HomeLive, :edit
+      live "/city/:lat/:lon", CityLive, :show
     end
   end
 

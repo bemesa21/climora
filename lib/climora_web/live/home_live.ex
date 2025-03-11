@@ -1,6 +1,6 @@
 defmodule ClimoraWeb.HomeLive do
-  alias Climora.Locations
   use ClimoraWeb, :live_view
+  alias Climora.Locations
 
   @api_url "http://api.openweathermap.org/geo/1.0/direct"
   @api_key ""
@@ -52,7 +52,7 @@ defmodule ClimoraWeb.HomeLive do
             </p>
           </div>
           <div class="p-6 pt-0">
-            <.link patch={"~p#{city.lat}/#{city.lon}"}>
+            <.link patch={~p"/city/#{city.lat}/#{city.lon}"}>
               <.button class="flex items-center gap-2 px-4 py-2 font-sans text-xs font-bold text-center text-gray-900 uppercase align-middle transition-all rounded-lg select-none disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:bg-gray-900/10 active:bg-gray-900/20 bg-transparent">
                 Learn More
                 <svg
