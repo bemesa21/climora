@@ -29,12 +29,12 @@ defmodule Climora.HomeyLiveTest do
 
       # Step 5: Click the heart button to favorite the city
       view
-      |> element("#resulting_cities-city_1_no_solid")
+      |> element("#resulting_cities-Mexico1_no_solid")
       |> render_click()
 
       # the solid heart appear, and the other dissapear
-      refute has_element?(view, "#resulting_cities-city_1_no_solid.hidden")
-      assert has_element?(view, "#resulting_cities-city_1_solid.hidden")
+      refute has_element?(view, "#resulting_cities-Mexico1_no_solid.hidden")
+      assert has_element?(view, "#resulting_cities-Mexico1_solid.hidden")
 
       # Step 6: simulate the modal was closed
       render_patch(view, ~p"/")

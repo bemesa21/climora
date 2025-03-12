@@ -81,7 +81,7 @@ defmodule ClimoraWeb.HomeLive do
     |> Enum.with_index()
     |> Enum.map(fn {city, idx} ->
       %{
-        id: "city_#{idx}",
+        id: "#{clean_and_minimize(city["name"])}#{idx}",
         lat: city["lat"],
         lon: city["lon"],
         name: city["name"],
@@ -92,5 +92,12 @@ defmodule ClimoraWeb.HomeLive do
         }
       }
     end)
+  end
+
+  defp clean_and_minimize(string) do
+    string
+    |> String.trim()
+    |> String.replace(" ", "")
+    |> String.downcase()
   end
 end
