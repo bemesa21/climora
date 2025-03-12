@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :climora, Climora.Repo,
   username: "postgres",
-  password: "p8g2562",
+  password: "postgres",
   hostname: "localhost",
   database: "climora_dev",
   stacktrace: true,
@@ -85,3 +85,5 @@ config :phoenix_live_view,
 config :swoosh, :api_client, false
 
 config :climora, Climora.WeatherAPI, api_key: ""
+
+config :climora, Climora.OpenWeatherClient, Climora.OpenWeatherClient

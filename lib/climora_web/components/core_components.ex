@@ -474,6 +474,7 @@ defmodule ClimoraWeb.CoreComponents do
   attr :rows, :list, required: true
   attr :row_id, :any, default: nil, doc: "the function for generating the row id"
   attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
+  attr :class, :string, default: "nil"
 
   attr :row_item, :any,
     default: &Function.identity/1,
@@ -494,7 +495,7 @@ defmodule ClimoraWeb.CoreComponents do
 
     ~H"""
     <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="w-[40rem] mt-11 sm:w-full">
+      <table class={["w-[40rem] mt-11 sm:w-full", @class]}>
         <thead class="text-sm text-left leading-6 text-zinc-500">
           <tr>
             <th :for={col <- @col} class={["p-0 pb-4 pr-6 font-normal", col[:class]]}>
